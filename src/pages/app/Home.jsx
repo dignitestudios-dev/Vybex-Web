@@ -10,6 +10,7 @@ const Home = () => {
   const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [walletData, setWalletData] = useState(null);
   const [bankData, setBankData] = useState([]);
+const [redirectLoading, setRedirectLoading] = useState(false);
 
   useEffect(() => {
     const path = window.location.pathname;
@@ -28,16 +29,21 @@ const Home = () => {
     }
   }, []);
 
-  const handleRedirect = async () => {
-    try {
-      const response = await axios.post("/inapp/accountLink");
-      if (response?.status === 200) {
-        window.location.href = response?.data?.data?.url;
-      }
-    } catch (error) {
-      console.log(error?.response?.data?.message);
+ const handleRedirect = async () => {
+  setRedirectLoading(true); // start loader
+
+  try {
+    const response = await axios.post("/inapp/accountLink");
+    if (response?.status === 200) {
+      window.location.href = response?.data?.data?.url;
     }
-  };
+  } catch (error) {
+    console.log(error?.response?.data?.message);
+  } finally {
+    setRedirectLoading(false); // stop loader if API fails
+  }
+};
+
 
   const getWallet = async () => {
     setLoading(true);
@@ -132,6 +138,12 @@ const Home = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-black">
+    {redirectLoading && (
+  <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50">
+    <div className="w-12 h-12 border-4 border-gray-400 border-t-white rounded-full animate-spin"></div>
+  </div>
+)}
+
       <div className="w-[390px] h-[722px] bg-black text-white rounded-[40px] border border-gray-800 overflow-hidden relative shadow-2xl px-6 mt-4">
         <h2 className="text-xl font-semibold mb-4 mt-4">Withdraw Funds</h2>
 
